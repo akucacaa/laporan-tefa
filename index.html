@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Laporan Harian - Teaching Factory PPLG SMKN 2 Sumedang</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #fefefe;
+      --bg-secondary: #fffbeb;
+      --fg: #1a1a1a;
+      --muted: #6b6b6b;
+      --accent: #d4a012;
+      --accent-light: #f5d76e;
+      --accent-dark: #9c7a0e;
+      --card: #ffffff;
+      --border: #e5e5e5;
+      --success: #16a34a;
+      --danger: #dc2626;
+      --info: #2563eb;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--fg); }
+    .font-serif { font-family: 'Source Serif 4', serif; }
+    
+    .bg-grid {
+      position: fixed; inset: 0;
+      background-image: linear-gradient(rgba(212, 160, 18, 0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(212, 160, 18, 0.04) 1px, transparent 1px);
+      background-size: 40px 40px; z-index: -1;
+    }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+    .header-bar { background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%); }
+    
+    .form-input {
+      width: 100%; padding: 10px 14px;
+      border: 2px solid var(--border); border-radius: 8px;
+      font-family: inherit; font-size: 0.9rem; transition: all 0.2s; background: white;
+    }
+    .form-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(212, 160, 18, 0.15); }
+    .form-label { display: block; font-weight: 600; margin-bottom: 6px; color: var(--fg); font-size: 0.85rem; }
+    
+    .btn-primary { background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%); color: white; font-weight: 600; padding: 12px 24px; border-radius: 8px; border: none; cursor: pointer; transition: all 0.2s; }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(212, 160, 18, 0.3); }
+    
+    .btn-admin { 
+      background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); 
+      color: white; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; transition: all 0.2s;
+    }
+    .btn-admin:hover { background: rgba(255,255,255,0.3); }
+    .btn-admin.active { background: #16a34a; border-color: #16a34a; }
+
+    .btn-danger { background: var(--danger); color: white; font-weight: 600; padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-size: 0.8rem; }
+    .btn-danger:hover { opacity: 0.9; }
+
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table th { text-align: left; padding: 12px 16px; background: var(--bg-secondary); color: var(--fg); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; border-bottom: 2px solid var(--accent-light); }
+    .data-table td { padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+    .data-table tbody tr:hover { background: var(--bg-secondary); }
+    
+    .product-item { display: grid; grid-template-columns: 1.5fr 60px 100px 100px 40px; gap: 8px; align-items: center; margin-bottom: 8px; }
+    .select-wrapper { display: flex; flex-direction: column; gap: 4px; }
+    
+    .badge { display: inline-flex; padding: 4px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: 600; }
+    .badge-info { background: rgba(212, 160, 18, 0.1); color: var(--accent-dark); }
+    
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 16px; opacity: 0; visibility: hidden; transition: all 0.3s; }
+    .modal-overlay.active { opacity: 1; visibility: visible; }
+    .modal-content { background: white; border-radius: 16px; padding: 24px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; }
+    
+    /* Toast Notification Styles */
+    #toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .toast {
+      padding: 12px 20px;
+      border-radius: 8px;
+      color: white;
+      font-size: 0.9rem;
+      font-weight: 500;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      animation: slideIn 0.3s ease-out forwards;
+      opacity: 0;
+      transform: translateX(100%);
+    }
+    .toast.success { background-color: var(--success); }
+    .toast.error { background-color: var(--danger); }
+    .toast.warning { background-color: var(--accent); }
+    .toast.info { background-color: var(--info); }
+
+    @keyframes slideIn {
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes slideOut {
+      to { opacity: 0; transform: translateX(100%); }
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+  
+  <!-- Container untuk Notifikasi Toast -->
+  <div id="toast-container"></div>
+
+  <!-- Header -->
+  <header class="header-bar text-white sticky top-0 z-50 no-print">
+    <div class="max-w-6xl mx-auto px-4 py-3">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 bg-white rounded-lg flex items-center justify-center">
+            <svg class="w-7 h-7 text-[var(--accent-dark)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+            </svg>
+          </div>
+          <div>
+            <h1 class="font-serif text-lg font-bold">Teaching Factory PPLG</h1>
+            <p class="text-yellow-100 text-xs">SMKN 2 Sumedang</p>
+          </div>
+        </div>
+        
+        <div class="flex items-center gap-3">
+          <button id="resetAllBtn" class="btn-danger hidden" onclick="resetAllData()">
+            Hapus Semua Data
+          </button>
+          <button id="adminBtn" class="btn-admin" onclick="toggleAdminMode()">
+            <span id="adminBtnText">Admin Mode</span>
+          </button>
+          <div class="text-right hidden sm:block">
+            <p class="text-xs text-yellow-100">Hari ini</p>
+            <p class="font-semibold text-sm" id="currentDate"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="max-w-6xl mx-auto px-4 py-6">
+    
+    <!-- Stats (Hanya Admin) -->
+    <div id="statsContainer" class="hidden grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div class="card p-4 border-t-4 border-t-[var(--success)]">
+        <p class="text-[var(--muted)] text-xs mb-1">Total Pemasukan</p>
+        <p class="text-lg font-bold text-[var(--success)]" id="totalPemasukan">Rp 0</p>
+      </div>
+      <div class="card p-4 border-t-4 border-t-[var(--danger)]">
+        <p class="text-[var(--muted)] text-xs mb-1">Total Pengeluaran</p>
+        <p class="text-lg font-bold text-[var(--danger)]" id="totalPengeluaran">Rp 0</p>
+      </div>
+      <div class="card p-4 border-t-4 border-t-[var(--accent)]">
+        <p class="text-[var(--muted)] text-xs mb-1">Saldo Bersih</p>
+        <p class="text-lg font-bold text-[var(--accent-dark)]" id="saldoBersih">Rp 0</p>
+      </div>
+      <div class="card p-4 border-t-4 border-t-gray-300">
+        <p class="text-[var(--muted)] text-xs mb-1">Total Laporan</p>
+        <p class="text-lg font-bold" id="totalLaporan">0</p>
+      </div>
+    </div>
+
+    <!-- Rekap Bulanan (Hanya Admin) -->
+    <div id="monthlyReportContainer" class="hidden card p-6 mb-6 fade-in">
+      <h3 class="font-bold text-lg mb-4">Rekapitulasi Bulanan</h3>
+      <div class="overflow-x-auto">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Bulan</th>
+              <th>Total Pemasukan</th>
+              <th>Total Pengeluaran</th>
+              <th>Saldo</th>
+            </tr>
+          </thead>
+          <tbody id="monthlyTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex gap-2 mb-4 border-b border-[var(--border)]">
+      <button class="tab-btn active px-4 py-2 font-semibold text-sm border-b-2 border-[var(--accent)] text-[var(--accent-dark)]" onclick="switchTab('form')">Input Laporan</button>
+      <button class="tab-btn px-4 py-2 font-semibold text-sm text-[var(--muted)] border-b-2 border-transparent hover:text-[var(--fg)]" onclick="switchTab('riwayat')">Riwayat Data</button>
+    </div>
+
+    <!-- Content -->
+    <div id="content-area">
+      
+      <!-- FORM SECTION -->
+      <div id="form-section" class="card p-6 fade-in">
+        <form id="laporanForm" onsubmit="saveLaporan(event)">
+          
+          <!-- Identitas Penyusun -->
+          <div class="bg-yellow-50 border border-yellow-200 p-4 rounded-lg mb-6">
+            <h3 class="font-semibold text-yellow-800 mb-3 text-sm">Identitas Penyusun Laporan</h3>
+            <div class="grid md:grid-cols-3 gap-4">
+              <div>
+                <label class="form-label">Nama Lengkap *</label>
+                <input type="text" class="form-input" id="namaPetugas" required placeholder="Nama penanggung jawab">
+              </div>
+              <div>
+                <label class="form-label">Kelas *</label>
+                <select class="form-input" id="kelas" required>
+                  <option value="">Pilih Kelas</option>
+                  <option value="XI PPLG 1">XI PPLG 1</option>
+                  <option value="XI PPLG 2">XI PPLG 2</option>
+                  <option value="XI PPLG 3">XI PPLG 3</option>
+                  <option value="XI PPLG 4">XI PPLG 4</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label">Tanggal Laporan *</label>
+                <input type="date" class="form-input" id="tanggal" required>
+              </div>
+            </div>
+          </div>
+
+          <!-- Produk/Penjualan -->
+          <div class="mb-6 border p-4 rounded-lg bg-green-50 border-green-200">
+            <div class="flex justify-between items-center mb-3">
+              <h3 class="font-semibold text-green-800">Daftar Penjualan (Otomatis)</h3>
+              <button type="button" onclick="addProductRow()" class="text-xs bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700">+ Tambah Item</button>
+            </div>
+            
+            <div class="grid grid-cols-[1.5fr_60px_100px_100px_40px] gap-2 mb-2 px-1 text-xs font-semibold text-green-900">
+              <span>Nama Produk</span>
+              <span class="text-center">Qty</span>
+              <span class="text-right">Harga Satuan</span>
+              <span class="text-right">Subtotal</span>
+              <span></span>
+            </div>
+            
+            <div id="product-list"></div>
+            
+            <div class="mt-4 pt-3 border-t border-green-200 text-right">
+              <p class="text-sm text-green-700">Total Penjualan:</p>
+              <p class="text-2xl font-bold text-green-800" id="calcPenjualan">Rp 0</p>
+            </div>
+          </div>
+
+          <!-- Pengeluaran -->
+          <div class="mb-6 border p-4 rounded-lg bg-red-50 border-red-200">
+            <h3 class="font-semibold text-red-800 mb-3">Pengeluaran Operasional</h3>
+            <div class="grid md:grid-cols-2 gap-4">
+              <div>
+                <label class="form-label text-xs">Total Pengeluaran (Rp)</label>
+                <input type="number" class="form-input" id="pengeluaran" placeholder="0" oninput="calculateTotals()">
+              </div>
+              <div>
+                <label class="form-label text-xs">Keterangan Pengeluaran</label>
+                <input type="text" class="form-input" id="ketPengeluaran" placeholder="Contoh: Beli tinta">
+              </div>
+            </div>
+          </div>
+
+          <!-- Catatan -->
+          <div class="mb-6">
+            <label class="form-label">Catatan / Kendala</label>
+            <textarea class="form-input" id="kendala" rows="2" placeholder="Catatan tambahan jika ada..."></textarea>
+          </div>
+
+          <button type="submit" class="btn-primary w-full py-3 text-lg">
+            SIMPAN LAPORAN
+          </button>
+        </form>
+      </div>
+
+      <!-- RIWAYAT SECTION -->
+      <div id="riwayat-section" class="hidden card p-6 fade-in">
+        <div class="overflow-x-auto">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Tanggal</th>
+                <th>Penyusun (Kelas)</th>
+                <th>Total Penjualan</th>
+                <th>Total Pengeluaran</th>
+                <th>Saldo</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="riwayatTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal Detail -->
+  <div id="detailModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="font-serif text-lg font-bold">Detail Laporan</h3>
+        <button onclick="closeModal()" class="text-2xl hover:text-red-500">&times;</button>
+      </div>
+      <div id="detailContent"></div>
+    </div>
+  </div>
+
+  <script>
+    // ==========================================
+    // 1. KONFIGURASI FIREBASE
+    // ==========================================
+    const firebaseConfig = {
+      apiKey: "AIzaSyAshQn52cKLQX8ZwlrQqvTT-yVi3WMepEo",
+      authDomain: "laporan-tefa.firebaseapp.com",
+      databaseURL: "https://laporan-tefa-default-rtdb.firebaseio.com",
+      projectId: "laporan-tefa",
+      storageBucket: "laporan-tefa.firebasestorage.app",
+      messagingSenderId: "188442954109",
+      appId: "1:188442954109:web:364bcf396da09e6a88a414",
+      measurementId: "G-QSKKZ88E6L"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // ==========================================
+    // 2. KONFIGURASI HARGA PRODUK
+    // ==========================================
+    const productCatalog = {
+      "Ganci Akrilik 1 Side": 5000,
+      "Ganci Akrilik 2 Side": 7000,
+      "Ganci Strip 1 Side": 7000,
+      "Ganci Strip 2 Side": 8000,
+      "Ganci Press Kecil 1 Side": 5000,
+      "Ganci Press Besar 1 Side": 8000,
+      "Gantungan hp": 15000,
+      "Tumbler Kecil": 25000,
+      "Tumbler Besar": 45000,
+      "Stiker 1 Lembar": 30000,
+      "Stiker per pcs": 1000,
+      "Bucket Kecil Bunga Kawat": 18000,
+      "Pin Kecil": 5000,
+      "Pin Besar": 7000,
+      "Mug Sublime": 35000,
+      "Kaos Sublim": 85000,
+      "ATK": "sub",
+      "Printing": "sub"
+    };
+
+    const atkCatalog = {
+      "Buku Tulis": 4000,
+      "Buku Gambar": 6000,
+      "Pulpen": 3000,
+      "Pensil": 2000,
+      "Penghapus": 1500,
+      "Spidol Whiteboard": 12000,
+      "Penggaris": 5000,
+      "Kertas HVS (lembar)": 500,
+      "Map Plastik": 2500,
+      "Map Jepit": 5000
+    };
+
+    const printingCatalog = {
+      "Print Berwarna": 1000,
+      "Print Hitam Putih": 500,
+      "Print Full Color": 2000,
+      "Fotocopy": 500
+    };
+
+    let productRowCount = 0;
+    let isAdmin = false;
+    const ADMIN_PASSWORD = "admin123"; 
+
+    // ==========================================
+    // 3. FUNGSI NOTIFIKASI (TOAST)
+    // ==========================================
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.innerText = message;
+      
+      container.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.style.animation = 'slideOut 0.3s ease-out forwards';
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    // ==========================================
+    // 4. FUNGSI PRODUK DINAMIS
+    // ==========================================
+    function addProductRow() {
+      const container = document.getElementById('product-list');
+      const div = document.createElement('div');
+      div.className = 'product-item';
+      div.id = `row-${productRowCount}`;
+
+      const mainOptions = Object.keys(productCatalog).map(p => 
+        `<option value="${p}">${p}</option>`
+      ).join('');
+
+      const atkOptions = Object.keys(atkCatalog).map(p => 
+        `<option value="${p}">${p}</option>`
+      ).join('');
+
+      const printingOptions = Object.keys(printingCatalog).map(p => 
+        `<option value="${p}">${p}</option>`
+      ).join('');
+
+      div.innerHTML = `
+        <div class="select-wrapper">
+          <select class="form-input product-name" onchange="handleMainProductChange(this)">
+            <option value="">Pilih Produk...</option>
+            ${mainOptions}
+          </select>
+          <select class="form-input atk-selector hidden" onchange="updateRowCalculation(this)">
+            ${atkOptions}
+          </select>
+          <select class="form-input printing-selector hidden" onchange="updateRowCalculation(this)">
+            ${printingOptions}
+          </select>
+        </div>
+        <input type="number" class="form-input product-qty" placeholder="0" value="0" oninput="updateRowCalculation(this)" min="0">
+        <div class="text-right cell-data text-gray-600 product-unit-price" data-price="0">Rp 0</div>
+        <div class="text-right cell-data font-bold text-green-800 product-subtotal">Rp 0</div>
+        <button type="button" onclick="removeRow('row-${productRowCount}')" class="text-red-500 hover:text-red-700 text-xl font-bold">×</button>
+      `;
+      
+      container.appendChild(div);
+      productRowCount++;
+    }
+
+    function handleMainProductChange(selectElement) {
+      const row = selectElement.closest('.product-item');
+      const atkSelect = row.querySelector('.atk-selector');
+      const printingSelect = row.querySelector('.printing-selector');
+      const selectedProduct = selectElement.value;
+
+      atkSelect.classList.add('hidden');
+      printingSelect.classList.add('hidden');
+
+      if (selectedProduct === "ATK") {
+        atkSelect.classList.remove('hidden');
+      } else if (selectedProduct === "Printing") {
+        printingSelect.classList.remove('hidden');
+      }
+
+      updateRowCalculation(selectElement);
+    }
+
+    function updateRowCalculation(element) {
+      const row = element.closest('.product-item');
+      
+      const mainSelect = row.querySelector('.product-name');
+      const atkSelect = row.querySelector('.atk-selector');
+      const printingSelect = row.querySelector('.printing-selector');
+      const qtyInput = row.querySelector('.product-qty');
+      const unitPriceDiv = row.querySelector('.product-unit-price');
+      const subtotalDiv = row.querySelector('.product-subtotal');
+
+      const mainProduct = mainSelect.value;
+      const qty = parseInt(qtyInput.value) || 0;
+      
+      let price = 0;
+
+      if (mainProduct === "ATK") {
+        price = atkCatalog[atkSelect.value] || 0;
+      } else if (mainProduct === "Printing") {
+        price = printingCatalog[printingSelect.value] || 0;
+      } else {
+        price = productCatalog[mainProduct] || 0;
+      }
+
+      const subtotal = qty * price;
+
+      unitPriceDiv.innerText = formatRupiah(price);
+      unitPriceDiv.dataset.price = price;
+      subtotalDiv.innerText = formatRupiah(subtotal);
+
+      calculateTotals();
+    }
+
+    function removeRow(id) {
+      document.getElementById(id).remove();
+      calculateTotals();
+    }
+
+    function calculateTotals() {
+      let totalSales = 0;
+      const subtotals = document.querySelectorAll('.product-subtotal');
+      
+      subtotals.forEach(el => {
+        const text = el.innerText.replace(/[^0-9]/g, '');
+        const value = parseInt(text) || 0;
+        totalSales += value;
+      });
+
+      document.getElementById('calcPenjualan').innerText = formatRupiah(totalSales);
+      return totalSales;
+    }
+
+    // ==========================================
+    // 5. FUNGSI ADMIN & UI
+    // ==========================================
+
+    function toggleAdminMode() {
+      if (isAdmin) {
+        if (confirm("Yakin ingin logout dari mode Admin?")) {
+          isAdmin = false;
+          updateUIVisibility();
+          showToast("Anda telah logout.", "info");
+        }
+      } else {
+        const inputPass = prompt("Masukkan Password Admin:");
+        if (inputPass === ADMIN_PASSWORD) {
+          isAdmin = true;
+          updateUIVisibility();
+          showToast("Login berhasil! Mode Admin aktif.", "success");
+        } else if (inputPass !== null) {
+          showToast("Password salah!", "error");
+        }
+      }
+    }
+
+    function updateUIVisibility() {
+      const stats = document.getElementById('statsContainer');
+      const monthly = document.getElementById('monthlyReportContainer');
+      const resetBtn = document.getElementById('resetAllBtn');
+      const adminBtn = document.getElementById('adminBtn');
+      const adminText = document.getElementById('adminBtnText');
+
+      if (isAdmin) {
+        stats.classList.remove('hidden');
+        monthly.classList.remove('hidden');
+        resetBtn.classList.remove('hidden');
+        adminBtn.classList.add('active');
+        adminText.innerText = "Logout Admin";
+      } else {
+        stats.classList.add('hidden');
+        monthly.classList.add('hidden');
+        resetBtn.classList.add('hidden');
+        adminBtn.classList.remove('active');
+        adminText.innerText = "Admin Mode";
+      }
+      loadData(); 
+    }
+
+    // ==========================================
+    // 6. FUNGSI DATABASE (CRUD)
+    // ==========================================
+
+    function saveLaporan(e) {
+      e.preventDefault();
+      
+      const totalSales = calculateTotals();
+      const pengeluaran = parseInt(document.getElementById('pengeluaran').value) || 0;
+      
+      const items = [];
+      const rows = document.querySelectorAll('#product-list .product-item');
+      rows.forEach(row => {
+        const mainProduct = row.querySelector('.product-name').value;
+        const atkProduct = row.querySelector('.atk-selector').value;
+        const printingProduct = row.querySelector('.printing-selector').value;
+        const qty = parseInt(row.querySelector('.product-qty').value) || 0;
+        const price = parseInt(row.querySelector('.product-unit-price').dataset.price) || 0;
+        
+        let finalName = mainProduct;
+        if (mainProduct === "ATK") {
+          finalName = "ATK - " + atkProduct;
+        } else if (mainProduct === "Printing") {
+          finalName = "Printing - " + printingProduct;
+        }
+
+        if (mainProduct && qty > 0) {
+          items.push({ name: finalName, qty, price: price * qty });
+        }
+      });
+
+      if (items.length === 0 && pengeluaran === 0) {
+        if(!confirm("Tidak ada transaksi penjualan maupun pengeluaran. Yakin menyimpan laporan kosong?")) return;
+      }
+
+      const data = {
+        nama: document.getElementById('namaPetugas').value,
+        kelas: document.getElementById('kelas').value,
+        tanggal: document.getElementById('tanggal').value,
+        penjualan: items,
+        totalPemasukan: totalSales,
+        pengeluaran: pengeluaran,
+        ketPengeluaran: document.getElementById('ketPengeluaran').value,
+        kendala: document.getElementById('kendala').value,
+        timestamp: Date.now()
+      };
+
+      const newKey = db.ref().child('laporan').push().key;
+      const updates = {};
+      updates['/laporan/' + newKey] = data;
+
+      db.ref().update(updates)
+        .then(() => {
+          showToast("Laporan berhasil disimpan!", "success");
+          resetForm();
+        })
+        .catch(error => {
+          console.error(error);
+          showToast("Gagal menyimpan data.", "error");
+        });
+    }
+
+    function loadData() {
+      db.ref('laporan').orderByChild('timestamp').on('value', snapshot => {
+        const data = [];
+        snapshot.forEach(child => {
+          const val = child.val();
+          val.id = child.key;
+          data.unshift(val);
+        });
+
+        renderTable(data);
+        if (isAdmin) {
+          updateDashboardStats(data);
+          renderMonthlyReport(data);
+        }
+      });
+    }
+
+    function deleteReport(id) {
+      if (confirm("Yakin ingin menghapus laporan ini?")) {
+        db.ref('laporan/' + id).remove()
+          .then(() => showToast("Laporan dihapus.", "info"));
+      }
+    }
+
+    function resetAllData() {
+      if (confirm("PERINGATAN! Ini akan menghapus SEMUA DATA LAPORAN. Lanjutkan?")) {
+        if (confirm("Apakah Anda benar-benar yakin?")) {
+          db.ref('laporan').remove()
+            .then(() => showToast("Semua data berhasil dihapus.", "success"))
+            .catch(e => showToast("Gagal menghapus: " + e.message, "error"));
+        }
+      }
+    }
+
+    // ==========================================
+    // 7. RENDER UI
+    // ==========================================
+
+    function renderTable(data) {
+      const tbody = document.getElementById('riwayatTableBody');
+      if (data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-gray-400 py-8">Belum ada data</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = data.map(l => {
+        const saldo = (l.totalPemasukan || 0) - (l.pengeluaran || 0);
+        
+        let actions = '';
+        if (isAdmin) {
+          actions = `
+            <button onclick="showDetail('${l.id}')" class="text-xs text-blue-600 underline mr-2">Detail</button>
+            <button onclick="deleteReport('${l.id}')" class="text-xs text-red-600 underline">Hapus</button>
+          `;
+        } else {
+          actions = `<span class="text-xs text-gray-400">-</span>`;
+        }
+
+        return `
+          <tr>
+            <td>${formatDate(l.tanggal)}</td>
+            <td><span class="font-semibold">${l.nama}</span><br><span class="badge badge-info text-xs">${l.kelas}</span></td>
+            <td class="font-medium">${formatRupiah(l.totalPemasukan || 0)}</td>
+            <td class="font-medium">${formatRupiah(l.pengeluaran || 0)}</td>
+            <td class="font-bold ${saldo >= 0 ? 'text-green-600' : 'text-red-600'}">${formatRupiah(saldo)}</td>
+            <td>${actions}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderMonthlyReport(data) {
+      const monthlyData = {};
+
+      data.forEach(item => {
+        const date = new Date(item.timestamp);
+        const monthYear = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        
+        if (!monthlyData[monthYear]) {
+          monthlyData[monthYear] = { income: 0, expense: 0 };
+        }
+        
+        monthlyData[monthYear].income += item.totalPemasukan || 0;
+        monthlyData[monthYear].expense += item.pengeluaran || 0;
+      });
+
+      const tbody = document.getElementById('monthlyTableBody');
+      tbody.innerHTML = Object.keys(monthlyData).map(key => {
+        const val = monthlyData[key];
+        const [year, month] = key.split('-');
+        const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+        const label = `${monthNames[parseInt(month) - 1]} ${year}`;
+        
+        return `
+          <tr>
+            <td class="font-medium">${label}</td>
+            <td class="text-green-600">${formatRupiah(val.income)}</td>
+            <td class="text-red-600">${formatRupiah(val.expense)}</td>
+            <td class="font-bold">${formatRupiah(val.income - val.expense)}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function updateDashboardStats(data) {
+      let totalIn = 0, totalOut = 0;
+      data.forEach(d => {
+        totalIn += d.totalPemasukan || 0;
+        totalOut += d.pengeluaran || 0;
+      });
+      
+      document.getElementById('totalPemasukan').innerText = formatRupiah(totalIn);
+      document.getElementById('totalPengeluaran').innerText = formatRupiah(totalOut);
+      document.getElementById('saldoBersih').innerText = formatRupiah(totalIn - totalOut);
+      document.getElementById('totalLaporan').innerText = data.length;
+    }
+
+    function showDetail(id) {
+      if (!isAdmin) return;
+      
+      db.ref('laporan/' + id).once('value', snapshot => {
+        const l = snapshot.val();
+        if (!l) return;
+
+        const itemRows = l.penjualan && l.penjualan.length > 0 
+          ? l.penjualan.map(i => `
+              <tr class="border-b">
+                <td class="py-1">${i.name}</td>
+                <td class="py-1 text-center">${i.qty}x</td>
+                <td class="py-1 text-right">${formatRupiah(i.price)}</td>
+              </tr>
+            `).join('') 
+          : '<tr><td colspan="3" class="text-center text-gray-400 py-2">Tidak ada penjualan</td></tr>';
+
+        const content = `
+          <div class="grid grid-cols-2 gap-4 mb-4 border-b pb-4">
+            <div><span class="text-xs text-gray-500">Penyusun</span><h4 class="font-bold">${l.nama}</h4></div>
+            <div><span class="text-xs text-gray-500">Kelas</span><h4 class="font-bold">${l.kelas}</h4></div>
+            <div class="col-span-2"><span class="text-xs text-gray-500">Tanggal</span><h4 class="font-bold">${formatDate(l.tanggal)}</h4></div>
+          </div>
+          
+          <h4 class="font-semibold text-sm mb-2 text-green-700">Rincian Penjualan:</h4>
+          <table class="w-full text-sm mb-4">
+            <thead><tr class="text-left text-gray-500"><th>Item</th><th class="text-center">Qty</th><th class="text-right">Total</th></tr></thead>
+            <tbody>${itemRows}</tbody>
+            <tfoot><tr class="font-bold border-t"><td colspan="2">Total Pemasukan</td><td class="text-right text-green-600">${formatRupiah(l.totalPemasukan || 0)}</td></tr></tfoot>
+          </table>
+          
+          <div class="bg-red-50 p-3 rounded mb-4">
+            <p class="text-xs text-red-600">Pengeluaran: ${formatRupiah(l.pengeluaran || 0)} (${l.ketPengeluaran || '-'})</p>
+          </div>
+          
+          <div class="bg-gray-50 p-3 rounded text-sm">
+            <span class="text-gray-500">Catatan/Kendala:</span><br>${l.kendala || '-'}
+          </div>
+        `;
+
+        document.getElementById('detailContent').innerHTML = content;
+        document.getElementById('detailModal').classList.add('active');
+      });
+    }
+
+    // ==========================================
+    // 8. HELPER FUNCTIONS
+    // ==========================================
+    function formatRupiah(num) {
+      return 'Rp ' + num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+
+    function formatDate(str) {
+      const d = new Date(str);
+      return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active', 'text-[var(--accent-dark)]', 'border-[var(--accent)]');
+        btn.classList.add('text-[var(--muted)]', 'border-transparent');
+      });
+      
+      const buttons = document.querySelectorAll('.tab-btn');
+      if(tab === 'form') {
+        buttons[0].classList.add('active', 'text-[var(--accent-dark)]', 'border-[var(--accent)]');
+        buttons[0].classList.remove('text-[var(--muted)]', 'border-transparent');
+        document.getElementById('form-section').classList.remove('hidden');
+        document.getElementById('riwayat-section').classList.add('hidden');
+      } else {
+        buttons[1].classList.add('active', 'text-[var(--accent-dark)]', 'border-[var(--accent)]');
+        buttons[1].classList.remove('text-[var(--muted)]', 'border-transparent');
+        document.getElementById('form-section').classList.add('hidden');
+        document.getElementById('riwayat-section').classList.remove('hidden');
+      }
+    }
+
+    function closeModal() {
+      document.getElementById('detailModal').classList.remove('active');
+    }
+
+    // ==========================================
+    // 9. FUNGSI RESET FORM (PERBAIKAN)
+    // ==========================================
+    function resetForm() {
+      // 1. Reset form utama (nama, kelas, dll)
+      document.getElementById('laporanForm').reset();
+      
+      // 2. Hapus semua baris produk yang ads
+      document.getElementById('product-list').innerHTML = '';
+      
+      // 3. Tambah satu baris baru yang kosong
+      addProductRow();
+      
+      // 4. Reset tanggal ke hari ini
+      document.getElementById('tanggal').value = new Date().toISOString().split('T')[0];
+      
+      // 5. Paksa kalkulasi ulang total besar (untuk memastikan 0)
+      calculateTotals();
+    }
+
+    // ==========================================
+    // 10. INISIALISASI
+    // ==========================================
+    window.onload = function() {
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('tanggal').value = today;
+      document.getElementById('currentDate').innerText = formatDate(today);
+
+      addProductRow();
+      loadData();
+    };
+  </script>
+</body>
+</html>
