@@ -2,11 +2,12 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Laporan Harian - Teaching Factory PPLG SMKN 2 Sumedang</title>
   <script src="https://cdn.tailwindcss.com"></script>
 
-   <link rel="icon" type="image/png" href="logo.png" />
+  <!-- FAVICON LOGO -->
+    <link rel="icon" type="image/png" href="logo.png" />
   
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -15,7 +16,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet">
-  <link rel="icon" type="image/png" href="logo.jpeg">
   <style>
     :root {
       --bg: #fefefe;
@@ -31,152 +31,135 @@
       --danger: #dc2626;
       --info: #2563eb;
     }
-    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--fg); padding-bottom: 80px; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--fg); }
     .font-serif { font-family: 'Source Serif 4', serif; }
     
-    /* Background Grid */
     .bg-grid {
       position: fixed; inset: 0;
       background-image: linear-gradient(rgba(212, 160, 18, 0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(212, 160, 18, 0.04) 1px, transparent 1px);
       background-size: 40px 40px; z-index: -1;
     }
-    
-    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
     .header-bar { background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%); }
     
-    /* Form Elements */
     .form-input {
-      width: 100%; padding: 12px; /* Padding lebih besar untuk HP */
+      width: 100%; padding: 10px 14px;
       border: 2px solid var(--border); border-radius: 8px;
-      font-family: inherit; font-size: 0.95rem; transition: all 0.2s; background: white;
-      appearance: none;
+      font-family: inherit; font-size: 0.9rem; transition: all 0.2s; background: white;
     }
     .form-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(212, 160, 18, 0.15); }
     .form-label { display: block; font-weight: 600; margin-bottom: 6px; color: var(--fg); font-size: 0.85rem; }
     
-    /* Buttons */
-    .btn-primary { background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%); color: white; font-weight: 600; padding: 14px 20px; border-radius: 8px; border: none; cursor: pointer; transition: all 0.2s; width: 100%; font-size: 1rem; }
-    .btn-primary:active { transform: scale(0.98); }
+    .btn-primary { background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%); color: white; font-weight: 600; padding: 12px 24px; border-radius: 8px; border: none; cursor: pointer; transition: all 0.2s; width: 100%; }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(212, 160, 18, 0.3); }
     
     .btn-admin { 
       background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); 
-      color: white; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; transition: all 0.2s;
+      color: white; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; transition: all 0.2s;
     }
-    .btn-admin:active { background: rgba(255,255,255,0.3); }
+    .btn-admin:hover { background: rgba(255,255,255,0.3); }
     .btn-admin.active { background: #16a34a; border-color: #16a34a; }
 
-    .btn-danger { background: var(--danger); color: white; font-weight: 600; padding: 10px 16px; border-radius: 6px; border: none; cursor: pointer; font-size: 0.85rem; width: 100%; }
-
-    /* Product Grid Layout */
-    .product-item { 
-      display: grid; 
-      gap: 8px; 
-      align-items: start; 
-      margin-bottom: 12px; 
-      padding-bottom: 12px;
-      border-bottom: 1px dashed var(--border);
-    }
-    /* Desktop Layout */
-    @media (min-width: 768px) {
-      .product-item { 
-        grid-template-columns: 1.5fr 60px 120px 120px 40px; 
-        align-items: center; 
-        padding-bottom: 0;
-        border-bottom: none;
-      }
-      .col-full-mobile { display: contents; }
-    }
-    /* Mobile Layout */
-    @media (max-width: 767px) {
-      .product-item { grid-template-columns: 1fr 40px; }
-      /* Span 2 kolom di mobile */
-      .product-name { grid-column: span 2; }
-      .product-qty { grid-column: 1 / span 1; }
-      .product-unit-price { grid-column: 2 / span 1; text-align: right !important; font-size: 0.85rem; margin-top: 4px; }
-      .product-subtotal { grid-column: 1 / span 2; text-align: right !important; margin-top: 4px; }
-      .btn-delete-row { grid-column: 2 / span 1; justify-self: end; }
-      
-      /* Hide headers on mobile */
-      .desktop-header { display: none; }
-    }
+    .btn-danger-sm { background: var(--danger); color: white; font-weight: 600; padding: 4px 8px; border-radius: 4px; border: none; cursor: pointer; font-size: 0.7rem; }
 
     .data-table { width: 100%; border-collapse: collapse; }
-    .data-table th { text-align: left; padding: 12px 16px; background: var(--bg-secondary); color: var(--fg); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; border-bottom: 2px solid var(--accent-light); white-space: nowrap; }
-    .data-table td { padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 0.85rem; vertical-align: middle; }
+    .data-table th { text-align: left; padding: 12px 16px; background: var(--bg-secondary); color: var(--fg); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; border-bottom: 2px solid var(--accent-light); }
+    .data-table td { padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
     
+    /* Produk Item Layout - Desktop (Grid) */
+    .product-item {
+      display: grid;
+      grid-template-columns: 1.5fr 60px 100px 100px 40px;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    
+    /* Produk Item Layout - Mobile (Flex/Card) */
+    @media (max-width: 640px) {
+      .product-item {
+        display: flex;
+        flex-direction: column;
+        background: rgba(255,255,255,0.8);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 12px;
+        position: relative;
+      }
+      .product-item .select-wrapper { margin-bottom: 8px; width: 100%; }
+      .product-item .product-qty { width: 100%; margin-bottom: 8px; }
+      .product-item .cell-data { width: 100%; text-align: left !important; margin-bottom: 4px; display: flex; justify-content: space-between; }
+      .product-item .close-btn { position: absolute; top: 8px; right: 8px; }
+    }
+
     .badge { display: inline-flex; padding: 4px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: 600; }
     .badge-info { background: rgba(212, 160, 18, 0.1); color: var(--accent-dark); }
     
-    /* Modal */
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; display: flex; align-items: flex-end; justify-content: center; /* Bottom sheet on mobile */ opacity: 0; visibility: hidden; transition: all 0.3s; }
-    @media (min-width: 768px) { .modal-overlay { align-items: center; padding: 16px; } }
-    
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 16px; opacity: 0; visibility: hidden; transition: all 0.3s; }
     .modal-overlay.active { opacity: 1; visibility: visible; }
-    .modal-content { background: white; border-radius: 20px 20px 0 0; padding: 24px; width: 100%; max-height: 90vh; overflow-y: auto; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
-    @media (min-width: 768px) { 
-      .modal-content { border-radius: 16px; max-width: 600px; transform: translateY(20px); opacity: 0; } 
-    }
-    .modal-overlay.active .modal-content { transform: translateY(0); opacity: 1; }
-
-    /* Toast */
-    #toast-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; width: 90%; max-width: 400px; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
-    @media (min-width: 768px) { #toast-container { left: auto; right: 24px; transform: none; } }
+    .modal-content { background: white; border-radius: 16px; padding: 24px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; }
     
-    .toast { padding: 14px 20px; border-radius: 10px; color: white; font-size: 0.9rem; font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.15); animation: slideUp 0.3s ease-out forwards; pointer-events: auto; display: flex; align-items: center; justify-content: space-between; }
+    /* Toast Notification */
+    #toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .toast {
+      padding: 12px 20px;
+      border-radius: 8px;
+      color: white;
+      font-size: 0.9rem;
+      font-weight: 500;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      animation: slideIn 0.3s ease-out forwards;
+      opacity: 0;
+      transform: translateX(100%);
+    }
     .toast.success { background-color: var(--success); }
     .toast.error { background-color: var(--danger); }
-    .toast.warning { background-color: var(--accent); }
     .toast.info { background-color: var(--info); }
 
-    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-    /* Mobile Card for History Table */
-    .mobile-history-card { display: none; border-bottom: 1px solid var(--border); padding: 16px 0; }
-    @media (max-width: 767px) {
-      .desktop-table { display: none; }
-      .mobile-history-card { display: block; }
-      .data-table-wrapper { overflow-x: visible; }
-    }
+    @keyframes slideIn { to { opacity: 1; transform: translateX(0); } }
+    @keyframes slideOut { to { opacity: 0; transform: translateX(100%); } }
 
     .hidden { display: none !important; }
   </style>
 </head>
 <body>
   <div class="bg-grid"></div>
-  
-  <!-- Toast Container -->
   <div id="toast-container"></div>
 
   <!-- Header -->
-  <header class="header-bar text-white sticky top-0 z-50 shadow-md">
+  <header class="header-bar text-white sticky top-0 z-50 no-print">
     <div class="max-w-6xl mx-auto px-4 py-3">
-      <div class="flex items-center justify-between gap-4">
-        <div class="flex items-center gap-3 min-w-0"> <!-- min-w-0 prevents flex overflow -->
-          <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-lg flex items-center justify-center flex-shrink-0">
-            <svg class="w-6 h-6 sm:w-7 sm:h-7 text-[var(--accent-dark)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+            <svg class="w-6 h-6 text-[var(--accent-dark)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
             </svg>
           </div>
-          <div class="min-w-0">
-            <h1 class="font-serif text-base sm:text-lg font-bold truncate">Teaching Factory PPLG</h1>
-            <p class="text-yellow-100 text-[10px] sm:text-xs truncate">SMKN 2 Sumedang</p>
+          <div>
+            <h1 class="font-serif text-base sm:text-lg font-bold">Teaching Factory PPLG</h1>
+            <p class="text-yellow-100 text-xs">SMKN 2 Sumedang</p>
           </div>
         </div>
         
-        <div class="flex items-center gap-2 flex-shrink-0">
-          <button id="resetAllBtn" class="btn-danger hidden" onclick="resetAllData()">
-            <span class="hidden sm:inline">Hapus Semua</span>
-            <span class="sm:hidden">Reset</span>
+        <div class="flex items-center gap-2">
+          <button id="resetAllBtn" class="btn-danger-sm hidden" onclick="resetAllData()">
+            Hapus Semua
           </button>
-          <button id="adminBtn" class="btn-admin whitespace-nowrap" onclick="toggleAdminMode()">
+          <button id="adminBtn" class="btn-admin" onclick="toggleAdminMode()">
             <span id="adminBtnText">Admin</span>
           </button>
         </div>
-      </div>
-      <div class="text-right mt-2 hidden sm:block">
-        <p class="text-[10px] text-yellow-100 uppercase tracking-wide">Hari ini</p>
-        <p class="font-semibold text-xs" id="currentDate"></p>
       </div>
     </div>
   </header>
@@ -184,37 +167,37 @@
   <!-- Main -->
   <main class="max-w-6xl mx-auto px-4 py-6">
     
-    <!-- Stats (Hanya Admin) -->
-    <div id="statsContainer" class="hidden grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-      <div class="card p-3 border-t-4 border-t-[var(--success)]">
-        <p class="text-[var(--muted)] text-[10px] uppercase font-bold tracking-wider mb-1">Pemasukan</p>
-        <p class="text-sm md:text-lg font-bold text-[var(--success)]" id="totalPemasukan">Rp 0</p>
+    <!-- Stats (Admin Only) -->
+    <div id="statsContainer" class="hidden grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div class="card p-4 border-t-4 border-t-[var(--success)]">
+        <p class="text-[var(--muted)] text-xs mb-1">Pemasukan</p>
+        <p class="text-base font-bold text-[var(--success)]" id="totalPemasukan">Rp 0</p>
       </div>
-      <div class="card p-3 border-t-4 border-t-[var(--danger)]">
-        <p class="text-[var(--muted)] text-[10px] uppercase font-bold tracking-wider mb-1">Pengeluaran</p>
-        <p class="text-sm md:text-lg font-bold text-[var(--danger)]" id="totalPengeluaran">Rp 0</p>
+      <div class="card p-4 border-t-4 border-t-[var(--danger)]">
+        <p class="text-[var(--muted)] text-xs mb-1">Pengeluaran</p>
+        <p class="text-base font-bold text-[var(--danger)]" id="totalPengeluaran">Rp 0</p>
       </div>
-      <div class="card p-3 border-t-4 border-t-[var(--accent)]">
-        <p class="text-[var(--muted)] text-[10px] uppercase font-bold tracking-wider mb-1">Saldo Bersih</p>
-        <p class="text-sm md:text-lg font-bold text-[var(--accent-dark)]" id="saldoBersih">Rp 0</p>
+      <div class="card p-4 border-t-4 border-t-[var(--accent)]">
+        <p class="text-[var(--muted)] text-xs mb-1">Saldo</p>
+        <p class="text-base font-bold text-[var(--accent-dark)]" id="saldoBersih">Rp 0</p>
       </div>
-      <div class="card p-3 border-t-4 border-t-gray-300">
-        <p class="text-[var(--muted)] text-[10px] uppercase font-bold tracking-wider mb-1">Total Laporan</p>
-        <p class="text-sm md:text-lg font-bold" id="totalLaporan">0</p>
+      <div class="card p-4 border-t-4 border-t-gray-300">
+        <p class="text-[var(--muted)] text-xs mb-1">Laporan</p>
+        <p class="text-base font-bold" id="totalLaporan">0</p>
       </div>
     </div>
 
-    <!-- Rekap Bulanan (Hanya Admin) -->
-    <div id="monthlyReportContainer" class="hidden card p-4 mb-6">
-      <h3 class="font-bold text-sm md:text-lg mb-3">Rekapitulasi Bulanan</h3>
+    <!-- Rekap Bulanan (Admin Only) -->
+    <div id="monthlyReportContainer" class="hidden card p-4 sm:p-6 mb-6">
+      <h3 class="font-bold text-lg mb-4">Rekapitulasi Bulanan</h3>
       <div class="overflow-x-auto">
         <table class="data-table">
           <thead>
             <tr>
               <th>Bulan</th>
-              <th class="text-right">Pemasukan</th>
-              <th class="text-right">Pengeluaran</th>
-              <th class="text-right">Saldo</th>
+              <th>Masuk</th>
+              <th>Keluar</th>
+              <th>Saldo</th>
             </tr>
           </thead>
           <tbody id="monthlyTableBody"></tbody>
@@ -223,9 +206,9 @@
     </div>
 
     <!-- Tabs -->
-    <div class="flex gap-4 mb-6 border-b border-[var(--border)] overflow-x-auto no-scrollbar">
-      <button class="tab-btn active pb-2 font-semibold text-sm border-b-2 border-[var(--accent)] text-[var(--accent-dark)] whitespace-nowrap" onclick="switchTab('form')">Input Laporan</button>
-      <button class="tab-btn pb-2 font-semibold text-sm text-[var(--muted)] border-b-2 border-transparent hover:text-[var(--fg)] whitespace-nowrap" onclick="switchTab('riwayat')">Riwayat Data</button>
+    <div class="flex gap-2 mb-4 border-b border-[var(--border)]">
+      <button class="tab-btn active px-4 py-2 font-semibold text-sm border-b-2 border-[var(--accent)] text-[var(--accent-dark)]" onclick="switchTab('form')">Input</button>
+      <button class="tab-btn px-4 py-2 font-semibold text-sm text-[var(--muted)] border-b-2 border-transparent" onclick="switchTab('riwayat')">Riwayat</button>
     </div>
 
     <!-- Content -->
@@ -238,10 +221,10 @@
           <!-- Identitas -->
           <div class="bg-yellow-50 border border-yellow-200 p-4 rounded-lg mb-6">
             <h3 class="font-semibold text-yellow-800 mb-3 text-sm">Identitas Penyusun</h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="grid md:grid-cols-3 gap-4">
               <div>
-                <label class="form-label">Nama Lengkap *</label>
-                <input type="text" class="form-input" id="namaPetugas" required placeholder="Cth: Ahmad">
+                <label class="form-label">Nama *</label>
+                <input type="text" class="form-input" id="namaPetugas" required placeholder="Nama lengkap">
               </div>
               <div>
                 <label class="form-label">Kelas *</label>
@@ -262,14 +245,14 @@
 
           <!-- Produk -->
           <div class="mb-6 border p-4 rounded-lg bg-green-50 border-green-200">
-            <div class="flex justify-between items-center mb-4">
-              <h3 class="font-semibold text-green-800 text-sm">Daftar Penjualan</h3>
-              <button type="button" onclick="addProductRow()" class="text-xs bg-green-600 text-white px-3 py-2 rounded hover:bg-green-700 active:bg-green-800 shadow-sm">+ Tambah Item</button>
+            <div class="flex justify-between items-center mb-3">
+              <h3 class="font-semibold text-green-800 text-sm">Penjualan</h3>
+              <button type="button" onclick="addProductRow()" class="text-xs bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700">+ Tambah</button>
             </div>
             
-            <!-- Header (Desktop Only) -->
-            <div class="desktop-header grid grid-cols-[1.5fr_60px_120px_120px_40px] gap-2 mb-2 px-1 text-xs font-semibold text-green-900 hidden md:grid">
-              <span>Nama Produk</span>
+            <!-- Header Desktop Only -->
+            <div class="hidden sm:grid grid-cols-[1.5fr_60px_100px_100px_40px] gap-2 mb-2 px-1 text-xs font-semibold text-green-900">
+              <span>Produk</span>
               <span class="text-center">Qty</span>
               <span class="text-right">Harga</span>
               <span class="text-right">Subtotal</span>
@@ -279,7 +262,7 @@
             <div id="product-list"></div>
             
             <div class="mt-4 pt-3 border-t border-green-200 text-right">
-              <p class="text-sm text-green-700">Total Penjualan:</p>
+              <p class="text-sm text-green-700">Total:</p>
               <p class="text-2xl font-bold text-green-800" id="calcPenjualan">Rp 0</p>
             </div>
           </div>
@@ -287,25 +270,25 @@
           <!-- Pengeluaran -->
           <div class="mb-6 border p-4 rounded-lg bg-red-50 border-red-200">
             <h3 class="font-semibold text-red-800 mb-3 text-sm">Pengeluaran</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="grid md:grid-cols-2 gap-4">
               <div>
-                <label class="form-label text-xs">Jumlah (Rp)</label>
+                <label class="form-label text-xs">Nominal (Rp)</label>
                 <input type="number" class="form-input" id="pengeluaran" placeholder="0" oninput="calculateTotals()">
               </div>
               <div>
                 <label class="form-label text-xs">Keterangan</label>
-                <input type="text" class="form-input" id="ketPengeluaran" placeholder="Contoh: Beli kertas">
+                <input type="text" class="form-input" id="ketPengeluaran" placeholder="Keterangan">
               </div>
             </div>
           </div>
 
           <!-- Catatan -->
           <div class="mb-6">
-            <label class="form-label">Catatan / Kendala</label>
-            <textarea class="form-input" id="kendala" rows="3" placeholder="Catatan tambahan..."></textarea>
+            <label class="form-label">Catatan</label>
+            <textarea class="form-input" id="kendala" rows="2" placeholder="Catatan jika ada..."></textarea>
           </div>
 
-          <button type="submit" class="btn-primary shadow-lg shadow-green-900/20">
+          <button type="submit" class="btn-primary py-3 text-lg">
             SIMPAN LAPORAN
           </button>
         </form>
@@ -313,28 +296,20 @@
 
       <!-- RIWAYAT SECTION -->
       <div id="riwayat-section" class="hidden card p-4 sm:p-6">
-        <div class="data-table-wrapper">
-          <!-- Desktop Table -->
-          <table class="data-table desktop-table w-full">
+        <div class="overflow-x-auto">
+          <table class="data-table">
             <thead>
               <tr>
                 <th>Tanggal</th>
                 <th>Penyusun</th>
-                <th class="text-right">Penjualan</th>
-                <th class="text-right">Pengeluaran</th>
-                <th class="text-right">Saldo</th>
-                <th class="text-center">Aksi</th>
+                <th>Penjualan</th>
+                <th>Keluar</th>
+                <th>Saldo</th>
+                <th>Aksi</th>
               </tr>
             </thead>
-            <tbody id="riwayatTableBodyDesktop"></tbody>
+            <tbody id="riwayatTableBody"></tbody>
           </table>
-
-          <!-- Mobile Cards Container -->
-          <div id="riwayatContainerMobile" class="flex flex-col gap-3"></div>
-        </div>
-        
-        <div id="emptyState" class="hidden text-center py-8 text-gray-400">
-          <p>Belum ada data laporan.</p>
         </div>
       </div>
     </div>
@@ -343,11 +318,11 @@
   <!-- Modal Detail -->
   <div id="detailModal" class="modal-overlay">
     <div class="modal-content">
-      <div class="flex justify-between items-center mb-4 pb-2 border-b border-gray-100 sticky top-0 bg-white z-10">
+      <div class="flex justify-between items-center mb-4">
         <h3 class="font-serif text-lg font-bold">Detail Laporan</h3>
-        <button onclick="closeModal()" class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-red-100 hover:text-red-500 transition-colors">&times;</button>
+        <button onclick="closeModal()" class="text-2xl hover:text-red-500">&times;</button>
       </div>
-      <div id="detailContent" class="pb-4"></div>
+      <div id="detailContent"></div>
     </div>
   </div>
 
@@ -366,46 +341,30 @@
       measurementId: "G-QSKKZ88E6L"
     };
 
-    // Initialize Firebase
-    try {
-      firebase.initializeApp(firebaseConfig);
-    } catch (e) {
-      console.error("Firebase init error:", e);
-    }
+    firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
     // ==========================================
-    // 2. KONFIGURASI DATA
+    // 2. KATALOG PRODUK
     // ==========================================
     const productCatalog = {
-      "Ganci Akrilik 1 Side": 5000,
-      "Ganci Akrilik 2 Side": 7000,
-      "Ganci Strip 1 Side": 7000,
-      "Ganci Strip 2 Side": 8000,
-      "Ganci Press Kecil 1 Side": 5000,
-      "Ganci Press Besar 1 Side": 8000,
-      "Gantungan hp": 15000,
-      "Tumbler Kecil": 25000,
-      "Tumbler Besar": 45000,
-      "Stiker 1 Lembar": 30000,
-      "Stiker per pcs": 1000,
-      "Bucket Kecil Bunga Kawat": 18000,
-      "Pin Kecil": 5000,
-      "Pin Besar": 7000,
-      "Mug Sublime": 35000,
-      "Kaos Sublim": 85000,
-      "ATK": "sub",
-      "Printing": "sub"
+      "Ganti Akrilik 1Side": 15000, "Ganti Akrilik 2Side": 25000,
+      "Ganci Press Kecil 1Side": 5000, "Ganci Press Besar 1/2 Side": 8000,
+      "Tumbler Kecil": 35000, "Tumbler Besar": 45000,
+      "Stiker 1 Lembar/Satuan": 5000, "Bucket Kecil Bunga Kawat": 75000,
+      "Pin Kecil": 3000, "Pin Besar": 5000,
+      "Mug Sublime": 35000, "Kaos Sublim": 85000,
+      "ATK": "sub", "Printing": "sub", "Joki Tugas": 10000
     };
 
     const atkCatalog = {
       "Buku Tulis": 4000, "Buku Gambar": 6000, "Pulpen": 3000, "Pensil": 2000,
-      "Penghapus": 1500, "Spidol Whiteboard": 12000, "Penggaris": 5000,
+      "Penghapus": 1500, "Spidol Whiteboard": 12000, "Penggaris": 5000, "Amplop": 1000,
       "Kertas HVS (lembar)": 500, "Map Plastik": 2500, "Map Jepit": 5000
     };
 
     const printingCatalog = {
-      "Print Berwarna": 1000, "Print Hitam Putih": 500, "Print Full Color": 2000, "Fotocopy": 500
+      "Print Berwarna": 1000, "Print Hitam Putih": 500, "Print Full Color": 2000, "Fotocopy": 300
     };
 
     let productRowCount = 0;
@@ -413,30 +372,22 @@
     const ADMIN_PASSWORD = "admin123"; 
 
     // ==========================================
-    // 3. NOTIFIKASI
+    // 3. TOAST NOTIFICATION
     // ==========================================
     function showToast(message, type = 'success') {
       const container = document.getElementById('toast-container');
       const toast = document.createElement('div');
       toast.className = `toast ${type}`;
-      
-      // Icon berdasarkan tipe
-      let icon = '';
-      if(type === 'success') icon = '<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>';
-      else if(type === 'error') icon = '<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>';
-      
-      toast.innerHTML = `<div>${icon}<span>${message}</span></div>`;
+      toast.innerText = message;
       container.appendChild(toast);
-      
       setTimeout(() => {
-        toast.style.opacity = '0';
-        toast.style.transform = 'translateY(20px)';
+        toast.style.animation = 'slideOut 0.3s ease-out forwards';
         setTimeout(() => toast.remove(), 300);
       }, 3000);
     }
 
     // ==========================================
-    // 4. LOGIKA PRODUK
+    // 4. PRODUK DINAMIS
     // ==========================================
     function addProductRow() {
       const container = document.getElementById('product-list');
@@ -449,27 +400,26 @@
       const printingOptions = Object.keys(printingCatalog).map(p => `<option value="${p}">${p}</option>`).join('');
 
       div.innerHTML = `
-        <div class="col-full-mobile product-name">
-          <select class="form-input product-name-select" onchange="handleMainProductChange(this)">
+        <div class="select-wrapper">
+          <select class="form-input product-name" onchange="handleMainProductChange(this)">
             <option value="">Pilih Produk...</option>
             ${mainOptions}
           </select>
-          <select class="form-input atk-selector hidden mt-2" onchange="updateRowCalculation(this)">
+          <select class="form-input atk-selector hidden" onchange="updateRowCalculation(this)">
             ${atkOptions}
           </select>
-          <select class="form-input printing-selector hidden mt-2" onchange="updateRowCalculation(this)">
+          <select class="form-input printing-selector hidden" onchange="updateRowCalculation(this)">
             ${printingOptions}
           </select>
         </div>
-        
-        <input type="number" class="form-input product-qty" placeholder="Qty" value="0" oninput="updateRowCalculation(this)" min="0">
-        
-        <div class="text-right cell-data text-gray-600 product-unit-price" data-price="0">Rp 0</div>
-        <div class="text-right cell-data font-bold text-green-800 product-subtotal">Rp 0</div>
-        
-        <button type="button" onclick="removeRow('row-${productRowCount}')" class="btn-delete-row text-red-400 hover:text-red-600 p-1">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-        </button>
+        <input type="number" class="form-input product-qty" placeholder="0" value="0" oninput="updateRowCalculation(this)" min="0">
+        <div class="text-right cell-data text-gray-600 product-unit-price" data-price="0">
+          <span class="sm:hidden font-medium">Harga:</span> Rp 0
+        </div>
+        <div class="text-right cell-data font-bold text-green-800 product-subtotal">
+          <span class="sm:hidden font-medium text-gray-600">Subtotal:</span> Rp 0
+        </div>
+        <button type="button" onclick="removeRow('row-${productRowCount}')" class="text-red-500 hover:text-red-700 text-2xl font-bold close-btn">×</button>
       `;
       
       container.appendChild(div);
@@ -485,17 +435,15 @@
       atkSelect.classList.add('hidden');
       printingSelect.classList.add('hidden');
 
-      if (selectedProduct === "ATK") {
-        atkSelect.classList.remove('hidden');
-      } else if (selectedProduct === "Printing") {
-        printingSelect.classList.remove('hidden');
-      }
+      if (selectedProduct === "ATK") atkSelect.classList.remove('hidden');
+      if (selectedProduct === "Printing") printingSelect.classList.remove('hidden');
+
       updateRowCalculation(selectElement);
     }
 
     function updateRowCalculation(element) {
       const row = element.closest('.product-item');
-      const mainSelect = row.querySelector('.product-name-select');
+      const mainSelect = row.querySelector('.product-name');
       const atkSelect = row.querySelector('.atk-selector');
       const printingSelect = row.querySelector('.printing-selector');
       const qtyInput = row.querySelector('.product-qty');
@@ -504,22 +452,19 @@
 
       const mainProduct = mainSelect.value;
       const qty = parseInt(qtyInput.value) || 0;
-      
       let price = 0;
 
-      if (mainProduct === "ATK") {
-        price = atkCatalog[atkSelect.value] || 0;
-      } else if (mainProduct === "Printing") {
-        price = printingCatalog[printingSelect.value] || 0;
-      } else {
-        price = productCatalog[mainProduct] || 0;
-      }
+      if (mainProduct === "ATK") price = atkCatalog[atkSelect.value] || 0;
+      else if (mainProduct === "Printing") price = printingCatalog[printingSelect.value] || 0;
+      else price = productCatalog[mainProduct] || 0;
 
       const subtotal = qty * price;
 
-      unitPriceDiv.innerText = formatRupiah(price);
+      // Update Text for Desktop/Mobile
+      unitPriceDiv.innerHTML = `<span class="sm:hidden font-medium text-gray-600">Harga:</span> ${formatRupiah(price)}`;
       unitPriceDiv.dataset.price = price;
-      subtotalDiv.innerText = formatRupiah(subtotal);
+      
+      subtotalDiv.innerHTML = `<span class="sm:hidden font-medium text-gray-600">Subtotal:</span> ${formatRupiah(subtotal)}`;
 
       calculateTotals();
     }
@@ -531,8 +476,7 @@
 
     function calculateTotals() {
       let totalSales = 0;
-      const subtotals = document.querySelectorAll('.product-subtotal');
-      subtotals.forEach(el => {
+      document.querySelectorAll('.product-subtotal').forEach(el => {
         const text = el.innerText.replace(/[^0-9]/g, '');
         totalSales += parseInt(text) || 0;
       });
@@ -545,17 +489,17 @@
     // ==========================================
     function toggleAdminMode() {
       if (isAdmin) {
-        if (confirm("Logout dari mode Admin?")) {
+        if (confirm("Yakin ingin logout dari mode Admin?")) {
           isAdmin = false;
           updateUIVisibility();
           showToast("Logout berhasil.", "info");
         }
       } else {
-        const inputPass = prompt("Password Admin:");
+        const inputPass = prompt("Masukkan Password Admin:");
         if (inputPass === ADMIN_PASSWORD) {
           isAdmin = true;
           updateUIVisibility();
-          showToast("Login Admin Berhasil", "success");
+          showToast("Login berhasil!", "success");
         } else if (inputPass !== null) {
           showToast("Password salah!", "error");
         }
@@ -563,30 +507,23 @@
     }
 
     function updateUIVisibility() {
-      const stats = document.getElementById('statsContainer');
-      const monthly = document.getElementById('monthlyReportContainer');
-      const resetBtn = document.getElementById('resetAllBtn');
+      document.getElementById('statsContainer').classList.toggle('hidden', !isAdmin);
+      document.getElementById('monthlyReportContainer').classList.toggle('hidden', !isAdmin);
+      document.getElementById('resetAllBtn').classList.toggle('hidden', !isAdmin);
+      
       const adminBtn = document.getElementById('adminBtn');
-      const adminText = document.getElementById('adminBtnText');
-
       if (isAdmin) {
-        stats.classList.remove('hidden');
-        monthly.classList.remove('hidden');
-        resetBtn.classList.remove('hidden');
         adminBtn.classList.add('active');
-        adminText.innerText = "Logout";
+        document.getElementById('adminBtnText').innerText = "Logout";
       } else {
-        stats.classList.add('hidden');
-        monthly.classList.add('hidden');
-        resetBtn.classList.add('hidden');
         adminBtn.classList.remove('active');
-        adminText.innerText = "Admin";
+        document.getElementById('adminBtnText').innerText = "Admin";
       }
       loadData(); 
     }
 
     // ==========================================
-    // 6. DATABASE
+    // 6. DATABASE CRUD
     // ==========================================
     function saveLaporan(e) {
       e.preventDefault();
@@ -594,9 +531,8 @@
       const pengeluaran = parseInt(document.getElementById('pengeluaran').value) || 0;
       
       const items = [];
-      const rows = document.querySelectorAll('#product-list .product-item');
-      rows.forEach(row => {
-        const mainProduct = row.querySelector('.product-name-select').value;
+      document.querySelectorAll('#product-list .product-item').forEach(row => {
+        const mainProduct = row.querySelector('.product-name').value;
         const atkProduct = row.querySelector('.atk-selector').value;
         const printingProduct = row.querySelector('.printing-selector').value;
         const qty = parseInt(row.querySelector('.product-qty').value) || 0;
@@ -606,13 +542,11 @@
         if (mainProduct === "ATK") finalName = "ATK - " + atkProduct;
         else if (mainProduct === "Printing") finalName = "Printing - " + printingProduct;
 
-        if (mainProduct && qty > 0) {
-          items.push({ name: finalName, qty, price: price * qty });
-        }
+        if (mainProduct && qty > 0) items.push({ name: finalName, qty, price: price * qty });
       });
 
       if (items.length === 0 && pengeluaran === 0) {
-        if(!confirm("Data kosong. Yakin simpan?")) return;
+        if(!confirm("Tidak ada transaksi. Yakin menyimpan laporan kosong?")) return;
       }
 
       const data = {
@@ -627,15 +561,13 @@
         timestamp: Date.now()
       };
 
-      db.ref('laporan').push(data)
+      const newKey = db.ref().child('laporan').push().key;
+      db.ref('laporan/' + newKey).set(data)
         .then(() => {
-          showToast("Laporan tersimpan!", "success");
+          showToast("Laporan berhasil disimpan!", "success");
           resetForm();
         })
-        .catch(error => {
-          console.error(error);
-          showToast("Gagal menyimpan.", "error");
-        });
+        .catch(error => showToast("Gagal menyimpan: " + error.message, "error"));
     }
 
     function loadData() {
@@ -646,95 +578,52 @@
           val.id = child.key;
           data.unshift(val);
         });
-
         renderTable(data);
         if (isAdmin) {
           updateDashboardStats(data);
           renderMonthlyReport(data);
         }
-        
-        // Toggle Empty State
-        const emptyState = document.getElementById('emptyState');
-        if(data.length === 0) emptyState.classList.remove('hidden');
-        else emptyState.classList.add('hidden');
       });
     }
 
     function deleteReport(id) {
-      if (confirm("Hapus laporan ini?")) {
-        db.ref('laporan/' + id).remove().then(() => showToast("Terhapus.", "info"));
+      if (confirm("Yakin hapus laporan ini?")) {
+        db.ref('laporan/' + id).remove().then(() => showToast("Dihapus.", "info"));
       }
     }
 
     function resetAllData() {
-      if (confirm("HAPUS SEMUA DATA? Tidak bisa dikembalikan.")) {
-        db.ref('laporan').remove().then(() => showToast("Database direset.", "success"));
+      if (confirm("PERINGATAN! Hapus SEMUA DATA?")) {
+        db.ref('laporan').remove()
+          .then(() => showToast("Semua data dihapus.", "success"))
+          .catch(e => showToast("Gagal: " + e.message, "error"));
       }
     }
 
     // ==========================================
-    // 7. RENDER UI (RESPONSIVE)
+    // 7. RENDER UI
     // ==========================================
     function renderTable(data) {
-      // 1. Render Desktop Table
-      const tbodyDesktop = document.getElementById('riwayatTableBodyDesktop');
-      tbodyDesktop.innerHTML = data.map(l => `
-        <tr class="hover:bg-gray-50">
-          <td class="whitespace-nowrap">${formatDate(l.tanggal)}</td>
-          <td>
-            <div class="font-semibold text-sm">${l.nama}</div>
-            <div class="badge badge-info">${l.kelas}</div>
-          </td>
-          <td class="text-right font-medium">${formatRupiah(l.totalPemasukan || 0)}</td>
-          <td class="text-right font-medium text-red-600">${formatRupiah(l.pengeluaran || 0)}</td>
-          <td class="text-right font-bold">${formatRupiah((l.totalPemasukan||0) - (l.pengeluaran||0))}</td>
-          <td class="text-center">
-             ${isAdmin ? `
-              <button onclick="showDetail('${l.id}')" class="text-blue-600 hover:underline mx-1">Detail</button>
-              <button onclick="deleteReport('${l.id}')" class="text-red-500 hover:underline mx-1">Hapus</button>
-             ` : '-'}
-          </td>
-        </tr>
-      `).join('');
+      const tbody = document.getElementById('riwayatTableBody');
+      if (data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-gray-400 py-8">Belum ada data</td></tr>';
+        return;
+      }
 
-      // 2. Render Mobile Cards
-      const containerMobile = document.getElementById('riwayatContainerMobile');
-      containerMobile.innerHTML = data.map(l => {
+      tbody.innerHTML = data.map(l => {
         const saldo = (l.totalPemasukan || 0) - (l.pengeluaran || 0);
-        const actionBtns = isAdmin ? `
-          <div class="flex gap-2 mt-3 pt-3 border-t border-gray-100">
-            <button onclick="showDetail('${l.id}')" class="flex-1 bg-blue-50 text-blue-600 py-2 rounded-lg text-xs font-semibold">Detail</button>
-            <button onclick="deleteReport('${l.id}')" class="flex-1 bg-red-50 text-red-500 py-2 rounded-lg text-xs font-semibold">Hapus</button>
-          </div>
-        ` : '';
-
+        let actions = isAdmin 
+          ? `<button onclick="showDetail('${l.id}')" class="text-blue-600 text-xs underline mr-1">Detail</button><button onclick="deleteReport('${l.id}')" class="text-red-600 text-xs underline">Hapus</button>`
+          : '-';
         return `
-          <div class="bg-white border border-gray-100 rounded-xl p-4 shadow-sm mobile-history-card">
-            <div class="flex justify-between items-start mb-2">
-              <div>
-                <h4 class="font-bold text-gray-800">${l.nama}</h4>
-                <span class="badge badge-info mt-1">${l.kelas}</span>
-              </div>
-              <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">${formatDate(l.tanggal)}</span>
-            </div>
-            
-            <div class="grid grid-cols-2 gap-2 my-3">
-              <div class="bg-green-50 p-2 rounded">
-                <p class="text-[10px] text-green-600 uppercase font-bold">Masuk</p>
-                <p class="text-sm font-bold text-green-800">${formatRupiah(l.totalPemasukan || 0)}</p>
-              </div>
-              <div class="bg-red-50 p-2 rounded">
-                <p class="text-[10px] text-red-600 uppercase font-bold">Keluar</p>
-                <p class="text-sm font-bold text-red-800">${formatRupiah(l.pengeluaran || 0)}</p>
-              </div>
-            </div>
-            
-            <div class="flex justify-between items-center">
-              <span class="text-xs text-gray-500">Saldo Bersih</span>
-              <span class="font-bold ${saldo >= 0 ? 'text-green-700' : 'text-red-700'}">${formatRupiah(saldo)}</span>
-            </div>
-            ${actionBtns}
-          </div>
+          <tr>
+            <td>${formatDate(l.tanggal)}</td>
+            <td>${l.nama}<br><span class="badge badge-info">${l.kelas}</span></td>
+            <td class="text-green-600">${formatRupiah(l.totalPemasukan || 0)}</td>
+            <td class="text-red-600">${formatRupiah(l.pengeluaran || 0)}</td>
+            <td class="font-bold ${saldo >= 0 ? 'text-blue-600' : 'text-red-800'}">${formatRupiah(saldo)}</td>
+            <td>${actions}</td>
+          </tr>
         `;
       }).join('');
     }
@@ -743,23 +632,23 @@
       const monthlyData = {};
       data.forEach(item => {
         const date = new Date(item.timestamp);
-        const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-        if (!monthlyData[key]) monthlyData[key] = { income: 0, expense: 0 };
-        monthlyData[key].income += item.totalPemasukan || 0;
-        monthlyData[key].expense += item.pengeluaran || 0;
+        const monthYear = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        if (!monthlyData[monthYear]) monthlyData[monthYear] = { income: 0, expense: 0 };
+        monthlyData[monthYear].income += item.totalPemasukan || 0;
+        monthlyData[monthYear].expense += item.pengeluaran || 0;
       });
 
       const tbody = document.getElementById('monthlyTableBody');
       tbody.innerHTML = Object.keys(monthlyData).map(key => {
         const val = monthlyData[key];
-        const [y, m] = key.split('-');
-        const label = new Date(y, m-1).toLocaleString('id-ID', { month: 'long', year: 'numeric' });
+        const [year, month] = key.split('-');
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Ags", "Sep", "Okt", "Nov", "Des"];
         return `
           <tr>
-            <td>${label}</td>
-            <td class="text-right text-green-600">${formatRupiah(val.income)}</td>
-            <td class="text-right text-red-600">${formatRupiah(val.expense)</td>
-            <td class="text-right font-bold">${formatRupiah(val.income - val.expense)}</td>
+            <td class="font-medium">${monthNames[parseInt(month) - 1]} ${year}</td>
+            <td class="text-green-600">${formatRupiah(val.income)}</td>
+            <td class="text-red-600">${formatRupiah(val.expense)}</td>
+            <td class="font-bold">${formatRupiah(val.income - val.expense)}</td>
           </tr>
         `;
       }).join('');
@@ -767,10 +656,7 @@
 
     function updateDashboardStats(data) {
       let totalIn = 0, totalOut = 0;
-      data.forEach(d => {
-        totalIn += d.totalPemasukan || 0;
-        totalOut += d.pengeluaran || 0;
-      });
+      data.forEach(d => { totalIn += d.totalPemasukan || 0; totalOut += d.pengeluaran || 0; });
       document.getElementById('totalPemasukan').innerText = formatRupiah(totalIn);
       document.getElementById('totalPengeluaran').innerText = formatRupiah(totalOut);
       document.getElementById('saldoBersih').innerText = formatRupiah(totalIn - totalOut);
@@ -778,87 +664,59 @@
     }
 
     function showDetail(id) {
+      if (!isAdmin) return;
       db.ref('laporan/' + id).once('value', snapshot => {
         const l = snapshot.val();
         if (!l) return;
         const itemRows = l.penjualan && l.penjualan.length > 0 
-          ? l.penjualan.map(i => `<tr class="border-b last:border-0"><td class="py-2">${i.name}</td><td class="py-2 text-center">${i.qty}x</td><td class="py-2 text-right">${formatRupiah(i.price)}</td></tr>`).join('') 
-          : '<tr><td colspan="3" class="text-center py-4 text-gray-400">Tidak ada penjualan</td></tr>';
+          ? l.penjualan.map(i => `<tr class="border-b"><td class="py-1">${i.name}</td><td class="py-1 text-center">${i.qty}x</td><td class="py-1 text-right">${formatRupiah(i.price)}</td></tr>`).join('') 
+          : '<tr><td colspan="3" class="text-center text-gray-400 py-2">Tidak ada penjualan</td></tr>';
 
-        const content = `
-          <div class="space-y-4">
-            <div class="bg-gray-50 p-3 rounded-lg grid grid-cols-2 gap-4">
-              <div><span class="text-xs text-gray-500 block">Penyusun</span><span class="font-bold">${l.nama}</span></div>
-              <div><span class="text-xs text-gray-500 block">Kelas</span><span class="font-bold">${l.kelas}</span></div>
-              <div class="col-span-2"><span class="text-xs text-gray-500 block">Tanggal</span><span class="font-bold">${formatDate(l.tanggal)}</span></div>
-            </div>
-            
-            <div>
-              <h4 class="font-semibold text-green-700 mb-2 text-sm">Rincian Penjualan</h4>
-              <div class="border rounded-lg overflow-hidden">
-                <table class="w-full text-sm">
-                  <thead class="bg-gray-50"><tr><th class="py-2 px-3 text-left">Item</th><th class="py-2 px-3 text-center">Qty</th><th class="py-2 px-3 text-right">Total</th></tr></thead>
-                  <tbody>${itemRows}</tbody>
-                  <tfoot class="bg-green-50"><tr><td colspan="2" class="py-2 px-3 font-bold text-right">Total</td><td class="py-2 px-3 font-bold text-right text-green-700">${formatRupiah(l.totalPemasukan || 0)}</td></tr></tfoot>
-                </table>
-              </div>
-            </div>
-            
-            <div class="bg-red-50 p-3 rounded-lg flex justify-between items-center">
-              <div>
-                <p class="text-xs text-red-500 font-bold uppercase">Pengeluaran</p>
-                <p class="text-sm text-gray-700">${l.ketPengeluaran || '-'}</p>
-              </div>
-              <p class="font-bold text-red-600">${formatRupiah(l.pengeluaran || 0)}</p>
-            </div>
-            
-            ${l.kendala ? `
-            <div class="bg-yellow-50 p-3 rounded-lg text-sm">
-              <p class="text-yellow-700 font-semibold mb-1">Catatan/Kendala:</p>
-              <p class="text-gray-600">${l.kendala}</p>
-            </div>` : ''}
+        document.getElementById('detailContent').innerHTML = `
+          <div class="grid grid-cols-2 gap-4 mb-4 border-b pb-4">
+            <div><span class="text-xs text-gray-500">Penyusun</span><h4 class="font-bold">${l.nama}</h4></div>
+            <div><span class="text-xs text-gray-500">Kelas</span><h4 class="font-bold">${l.kelas}</h4></div>
+            <div class="col-span-2"><span class="text-xs text-gray-500">Tanggal</span><h4 class="font-bold">${formatDate(l.tanggal)}</h4></div>
+          </div>
+          <h4 class="font-semibold text-sm mb-2 text-green-700">Rincian:</h4>
+          <table class="w-full text-sm mb-4">
+            <thead><tr class="text-left text-gray-500"><th>Item</th><th class="text-center">Qty</th><th class="text-right">Total</th></tr></thead>
+            <tbody>${itemRows}</tbody>
+            <tfoot><tr class="font-bold border-t"><td colspan="2">Total</td><td class="text-right text-green-600">${formatRupiah(l.totalPemasukan || 0)}</td></tr></tfoot>
+          </table>
+          <div class="bg-red-50 p-3 rounded mb-4 text-xs text-red-600">
+            Pengeluaran: ${formatRupiah(l.pengeluaran || 0)} (${l.ketPengeluaran || '-'})
+          </div>
+          <div class="bg-gray-50 p-3 rounded text-sm">
+            <span class="text-gray-500">Catatan:</span><br>${l.kendala || '-'}
           </div>
         `;
-        document.getElementById('detailContent').innerHTML = content;
         document.getElementById('detailModal').classList.add('active');
       });
     }
 
     // ==========================================
-    // 8. HELPERS
+    // 8. HELPER & INIT
     // ==========================================
-    function formatRupiah(num) {
-      return 'Rp ' + num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-    }
-
-    function formatDate(str) {
-      const d = new Date(str);
-      return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-    }
+    function formatRupiah(num) { return 'Rp ' + num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
+    function formatDate(str) { const d = new Date(str); return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }); }
 
     function switchTab(tab) {
-      const btns = document.querySelectorAll('.tab-btn');
-      btns.forEach(b => {
-        b.classList.remove('active', 'text-[var(--accent-dark)]', 'border-[var(--accent)]');
-        b.classList.add('text-[var(--muted)]', 'border-transparent');
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active', 'text-[var(--accent-dark)]', 'border-[var(--accent)]');
+        btn.classList.add('text-[var(--muted)]', 'border-transparent');
       });
+      const buttons = document.querySelectorAll('.tab-btn');
+      buttons[0].classList.toggle('active', tab === 'form');
+      buttons[0].classList.toggle('text-[var(--accent-dark)]', tab === 'form');
+      buttons[0].classList.toggle('border-[var(--accent)]', tab === 'form');
+      buttons[1].classList.toggle('active', tab === 'riwayat');
       
-      if(tab === 'form') {
-        btns[0].classList.add('active', 'text-[var(--accent-dark)]', 'border-[var(--accent)]');
-        btns[0].classList.remove('text-[var(--muted)]', 'border-transparent');
-        document.getElementById('form-section').classList.remove('hidden');
-        document.getElementById('riwayat-section').classList.add('hidden');
-      } else {
-        btns[1].classList.add('active', 'text-[var(--accent-dark)]', 'border-[var(--accent)]');
-        btns[1].classList.remove('text-[var(--muted)]', 'border-transparent');
-        document.getElementById('form-section').classList.add('hidden');
-        document.getElementById('riwayat-section').classList.remove('hidden');
-      }
+      document.getElementById('form-section').classList.toggle('hidden', tab !== 'form');
+      document.getElementById('riwayat-section').classList.toggle('hidden', tab !== 'riwayat');
     }
 
-    function closeModal() {
-      document.getElementById('detailModal').classList.remove('active');
-    }
+    function closeModal() { document.getElementById('detailModal').classList.remove('active'); }
 
     function resetForm() {
       document.getElementById('laporanForm').reset();
@@ -869,9 +727,7 @@
     }
 
     window.onload = function() {
-      const today = new Date().toISOString().split('T')[0];
-      document.getElementById('tanggal').value = today;
-      document.getElementById('currentDate').innerText = formatDate(today);
+      document.getElementById('tanggal').value = new Date().toISOString().split('T')[0];
       addProductRow();
       loadData();
     };
